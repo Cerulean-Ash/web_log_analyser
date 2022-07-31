@@ -1,11 +1,14 @@
-# file_data = File.readlines(ARGV[0]).map { |line| line.split}.group_by {|line| line.shift}.transform_values {|ip| ip.flatten}
+# frozen_string_literal: true
 
 require './lib/sorter'
 require './lib/printer'
 
+# Class to read and parse a web log text file
 class Parser
   def initialize(file_path)
     @file_path = file_path
+    raise 'Invalid file path' unless file_exists?
+
     @file_data = transform
   end
 
@@ -16,24 +19,6 @@ class Parser
   def transform
     @file_data = parse.map(&:split).group_by(&:shift).transform_values(&:flatten)
   end
-
-  # def sort_total_views
-  #   @file_data.transform_values {|v| v.length}.sort_by {|k, v| -v}.to_h
-  # end
-
-  # def sort_unique_views
-  #   @file_data.transform_values {|v| v.uniq.length}.sort_by {|k, v| -v}.to_h
-  # end
-
-  # def print_views(views, type)
-  #   views.each do |k, v|
-  #     p "#{k} #{v} #{type} page #{pluralize(v)}"
-  #   end
-  # end
-
-  # def pluralize(num)
-  #   num < 2 ? 'view' : 'views'
-  # end
 
   def total_views
     puts 'list of webpages with TOTAL page views ordered from most page views to least page views'
@@ -46,5 +31,9 @@ class Parser
     puts 'list of webpages with UNIQUE page views ordered from most page views to least page views'
     unique_views = Sorter.sort_unique_views(@file_data)
     Printer.print_views(unique_views, 'unique')
+  end
+
+  def file_exists?
+    File.file?(@file_path)
   end
 end
